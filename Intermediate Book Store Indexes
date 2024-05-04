@@ -1,0 +1,106 @@
+--Question 1:
+SELECT * FROM customers 
+LIMIT 10;
+
+SELECT * FROM orders
+LIMIT 10;
+
+SELECT * FROM books 
+LIMIT 10;
+
+--Question 2: 
+SELECT * FROM pg_indexes;
+
+--Question 3: 
+EXPLAIN ANALYZE 
+SELECT customer_id, quantity
+FROM orders
+WHERE quantity > 18;  
+
+--Question 4:
+CREATE INDEX 
+orders_quantity_customer_id_idx
+ON orders(quantity, customer_id)
+WHERE quantity > 18;
+
+--Question 5: 
+EXPLAIN ANALYZE 
+SELECT customer_id, quantity
+FROM orders
+WHERE quantity > 18;  
+
+--Question 6: 
+ALTER TABLE customers
+ADD CONSTRAINT customers_pkey
+PRIMARY KEY(customer_id);
+
+--Question 7:
+CLUSTER customers USING customers_pkey;
+SELECT * FROM customers LIMIT 10;
+
+--Question 8: 
+CREATE INDEX orders_customer_id_book_id_idx
+ON orders(customer_id, book_id);
+
+--Question 9:
+DROP INDEX IF EXISTS 
+orders_customer_id_book_id_idx;
+
+EXPLAIN ANALYZE 
+SELECT customer_id, book_id, quantity
+FROM orders;
+
+CREATE INDEX 
+orders_customer_id_book_id_quantity_idx
+ON orders(customer_id, book_id, quantity);
+
+EXPLAIN ANALYZE 
+SELECT customer_id, book_id, quantity
+FROM orders;
+
+--Question 10:
+CREATE INDEX 
+books_author_title_idx 
+ON books(author, title);
+
+--Question 11: 
+EXPLAIN ANALYZE 
+SELECT * 
+FROM orders 
+WHERE 100 < (quantity * price_base);
+
+--Question 12: 
+CREATE INDEX orders_total_price_idx 
+ON orders((quantity * price_base));
+
+--Question 13:
+EXPLAIN ANALYZE 
+SELECT * 
+FROM orders 
+WHERE 100 < (quantity * price_base);
+
+--Question 14:
+--Viewing indexes:
+SELECT *
+FROM pg_indexes
+WHERE tablename IN ('customers', 'books', 'orders');
+
+--Remove unneccesary index:
+DROP INDEX IF EXISTS books_title_idx;
+--Already have a books_author_title_idx dont really need an index that just checks title, can use a where clause for that.
+
+DROP INDEX IF EXISTS orders_quantity_customer_id_idx;
+--ALready have a orders_customer_id_book_id_quantity_idx.
+
+--A obvious useful index that may be needed is for customer info.
+
+CREATE INDEX customers_last_name_first_name_email_address_idx
+ON customers(last_name, first_name, email_address);
+
+--Check created index has been added:
+SELECT *
+FROM pg_indexes
+WHERE tablename IN ('customers', 'books', 'orders');
+
+
+
